@@ -18,6 +18,12 @@
 .env.test.local
 .env.production.local
 
+# supabase CLI local state
+/supabase/.temp
+
+# generated artifacts
+/repomix-output.xml
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
