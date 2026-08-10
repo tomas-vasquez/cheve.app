@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import DeliveryOrders from './DeliveryOrders';
 
 export default function DeliveryApp() {
-  const { user, isDelivery, loading, signOut } = useAuth();
+  const { user, isDelivery, branchId, loading, signOut } = useAuth();
+  const [branchName, setBranchName] = useState(null);
+
+  useEffect(() => {
+    if (!branchId) {
+      setBranchName(null);
+      return;
+    }
+    supabase
+      .from('branches')
+      .select('name')
+      .eq('id', branchId)
+      .maybeSingle()
+      .then(({ data }) => setBranchName(data?.name ?? null));
+  }, [branchId]);
 
   if (loading) {
     return (
@@ -18,6 +33,9 @@ export default function DeliveryApp() {
       <div style={styles.center}>
         <h1 style={styles.deniedTitle}>No autorizado</h1>
         <p style={styles.deniedText}>Esta área es solo para repartidores.</p>
+        <button style={styles.loginButton} onClick={() => signOut()}>
+          Ir a iniciar sesión
+        </button>
       </div>
     );
   }
@@ -31,7 +49,10 @@ export default function DeliveryApp() {
             <span style={{ color: '#fff' }}>.app</span>
             <span style={styles.badge}>Reparto</span>
           </div>
-          <div style={styles.email}>{user?.email}</div>
+          <div style={styles.email}>
+            {user?.email}
+            {branchName && <span style={styles.branch}> · {branchName}</span>}
+          </div>
         </div>
         <button style={styles.logout} onClick={() => signOut()}>
           Cerrar sesión
@@ -65,6 +86,18 @@ const styles = {
   },
   deniedTitle: { fontSize: 22, fontWeight: 700, margin: 0, color: '#ff6b6b' },
   deniedText: { fontSize: 14, color: '#8a8a8a', margin: 0 },
+  loginButton: {
+    marginTop: 16,
+    padding: '12px 20px',
+    borderRadius: 10,
+    background: 'rgba(201,162,39,0.15)',
+    border: '1px solid rgba(201,162,39,0.5)',
+    color: '#c9a227',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
   gold: { color: '#c9a227', fontSize: 15 },
   header: {
     display: 'flex',
@@ -93,6 +126,7 @@ const styles = {
     color: '#7ee787',
   },
   email: { fontSize: 12, color: '#8a8a8a', marginTop: 2 },
+  branch: { color: '#c9a227', fontWeight: 700 },
   logout: {
     background: 'rgba(255,255,255,0.08)',
     border: '1px solid rgba(255,255,255,0.15)',

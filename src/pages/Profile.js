@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useBranch } from '../context/BranchContext';
 
 export default function Profile() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { currentBranch } = useBranch();
   const initial = (user?.email?.[0] || 'U').toUpperCase();
 
   const [profile, setProfile] = useState({});
@@ -104,6 +106,24 @@ export default function Profile() {
           <div style={styles.menuText}>
             <span style={styles.menuTitle}>Editar perfil</span>
             <span style={styles.menuSub}>Cambiar foto y nombre</span>
+          </div>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+
+        <button style={styles.menuRow} onClick={() => navigate('/')}>
+          <div style={styles.menuIcon}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          </div>
+          <div style={styles.menuText}>
+            <span style={styles.menuTitle}>Mi sucursal</span>
+            <span style={styles.menuSub}>
+              {currentBranch ? currentBranch.name : 'Sin sucursal asignada'}
+            </span>
           </div>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m9 18 6-6-6-6" />

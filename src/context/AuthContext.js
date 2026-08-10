@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDelivery, setIsDelivery] = useState(false);
+  const [branchId, setBranchId] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -27,16 +28,18 @@ export function AuthProvider({ children }) {
     if (!user) {
       setIsAdmin(false);
       setIsDelivery(false);
+      setBranchId(null);
       return;
     }
     supabase
       .from('profiles')
-      .select('is_admin, is_delivery')
+      .select('is_admin, is_delivery, branch_id')
       .eq('user_id', user.id)
       .maybeSingle()
       .then(({ data }) => {
         setIsAdmin(!!data?.is_admin);
         setIsDelivery(!!data?.is_delivery);
+        setBranchId(data?.branch_id ?? null);
       });
   }, [user]);
 
@@ -48,7 +51,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, isAdmin, isDelivery, signUp, signIn, signOut, resetPassword }}
+      value={{ user, loading, isAdmin, isDelivery, branchId, signUp, signIn, signOut, resetPassword }}
     >
       {children}
     </AuthContext.Provider>

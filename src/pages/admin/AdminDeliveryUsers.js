@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import Skeleton from '../../components/Skeleton';
 
 export default function AdminDeliveryUsers() {
+  const { branchId } = useAuth();
   const [delivery, setDelivery] = useState([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -13,14 +15,20 @@ export default function AdminDeliveryUsers() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    if (!branchId) {
+      setDelivery([]);
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from('profiles')
-      .select('user_id, name, email, is_delivery')
+      .select('user_id, name, email, is_delivery, branch_id')
       .eq('is_delivery', true)
+      .eq('branch_id', branchId)
       .order('name');
     if (data) setDelivery(data);
     setLoading(false);
-  }, []);
+  }, [branchId]);
 
   useEffect(() => {
     fetchData();
@@ -86,6 +94,13 @@ export default function AdminDeliveryUsers() {
     <div>
       <h2 style={styles.title}>Repartidores</h2>
 
+      {!branchId && (
+        <p style={styles.warning}>
+          Tu cuenta no tiene una sucursal asignada. Pídele al encargado de la BD que
+          la asigne para poder gestionar repartidores.
+        </p>
+      )}
+
       <div style={styles.addCard}>
         <label style={styles.label}>Agregar repartidor por correo</label>
         <div style={styles.addRow}>
@@ -95,8 +110,9 @@ export default function AdminDeliveryUsers() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={styles.input}
+            disabled={!branchId}
           />
-          <button style={styles.addButton} onClick={add} disabled={saving}>
+          <button style={styles.addButton} onClick={add} disabled={saving || !branchId}>
             {saving ? '...' : '+ Agregar'}
           </button>
         </div>
@@ -162,6 +178,15 @@ const styles = {
     whiteSpace: 'nowrap',
   },
   feedback: { fontSize: 13, color: '#7ee787', margin: '0 0 12px' },
+  warning: {
+    fontSize: 13,
+    color: '#ffb86b',
+    background: 'rgba(255,184,107,0.1)',
+    border: '1px solid rgba(255,184,107,0.35)',
+    borderRadius: 10,
+    padding: '10px 14px',
+    margin: '0 0 12px',
+  },
   error: { fontSize: 13, color: '#ff6b6b', margin: '0 0 12px' },
   empty: { fontSize: 13, color: '#8a8a8a', textAlign: 'center', marginTop: 40 },
   card: {

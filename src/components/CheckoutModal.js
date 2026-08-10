@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { useBranch } from '../context/BranchContext';
 import { placeOrder } from '../lib/orders';
 
 const QR_PAYMENT_DATA = 'cheve.app';
@@ -42,6 +43,13 @@ export default function CheckoutModal({ total, onClose }) {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
+  const {
+    currentBranch,
+    distanceKm,
+    covered,
+    loading: branchLoading,
+  } = useBranch();
+
   const [address, setAddress] = useState(null);
   const [addressLoading, setAddressLoading] = useState(true);
   const [method, setMethod] = useState('contra_entrega');
@@ -71,8 +79,12 @@ export default function CheckoutModal({ total, onClose }) {
 
   const confirm = async () => {
     setError('');
+    if (!currentBranch || !covered) {
+      setError('No hay una sucursal con cobertura para tu ubicación.');
+      return;
+    }
     setSubmitting(true);
-    const { error: orderError } = await placeOrder(items, total, method);
+    const { error: orderError } = await placeOrder(items, total, method, currentBranch.id);
     setSubmitting(false);
     if (orderError) {
       setError(orderError.message);
@@ -140,6 +152,46 @@ export default function CheckoutModal({ total, onClose }) {
           </div>
 
           <div style={styles.section}>
+            <h2 style={styles.sectionTitle}>Sucursal</h2>
+
+            {branchLoading ? (
+              <p style={styles.muted}>Cargando sucursal...</p>
+            ) : !currentBranch ? (
+              <div style={styles.addressCard}>
+                <p style={styles.warning}>
+                  No hay una sucursal seleccionada. Elige una sucursal antes de confirmar el pedido.
+                </p>
+                <button style={styles.mapButton} onClick={onClose}>
+                  Elegir sucursal
+                </button>
+              </div>
+            ) : (
+              <div style={styles.addressCard}>
+                <div style={styles.addressRow}>
+                  <span style={{ ...styles.check, ...(covered ? {} : styles.checkBad) }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      {covered ? <path d="M20 6 9 17l-5-5" /> : <path d="M18 6 6 18M6 6l12 12" />}
+                    </svg>
+                  </span>
+                  <span style={styles.addressText}>
+                    {currentBranch.name}
+                    <span style={styles.addressSub}>
+                      {hasLocation && distanceKm != null
+                        ? covered
+                          ? `Cobertura OK · ${distanceKm.toFixed(1)} km de la sucursal`
+                          : `Sin cobertura · a ${distanceKm.toFixed(1)} km (radio ${Number(currentBranch.delivery_radius_km)} km)`
+                        : 'Entrega a esta sucursal'}
+                    </span>
+                  </span>
+                </div>
+                <button style={styles.changeButton} onClick={onClose}>
+                  Cambiar
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div style={styles.section}>
             <h2 style={styles.sectionTitle}>Método de pago</h2>
             <div style={styles.methods}>
               {PAYMENT_METHODS.map((m) => {
@@ -192,9 +244,15 @@ export default function CheckoutModal({ total, onClose }) {
             <button
               style={styles.confirmButton}
               onClick={confirm}
-              disabled={submitting}
+              disabled={submitting || branchLoading || !currentBranch || !covered}
             >
-              {submitting ? 'Procesando...' : 'Confirmar pedido'}
+              {submitting
+                ? 'Procesando...'
+                : !currentBranch
+                  ? 'Sin sucursal seleccionada'
+                  : !covered
+                    ? 'Sin cobertura de entrega'
+                    : 'Confirmar pedido'}
             </button>
           </div>
         </div>
@@ -282,6 +340,11 @@ const styles = {
     background: 'rgba(126,231,135,0.15)',
     color: '#7ee787',
     border: '1px solid rgba(126,231,135,0.5)',
+  },
+  checkBad: {
+    background: 'rgba(255,107,107,0.15)',
+    color: '#ff6b6b',
+    border: '1px solid rgba(255,107,107,0.5)',
   },
   addressText: {
     display: 'block',

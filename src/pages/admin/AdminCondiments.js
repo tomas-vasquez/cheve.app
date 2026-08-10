@@ -3,12 +3,18 @@ import { supabase } from '../../lib/supabase';
 import Skeleton from '../../components/Skeleton';
 
 const CATEGORIES = ['Bicarbonatos saborizados', 'Café', 'Estevia', 'Otros'];
+const EMPTY = {
+  name: '',
+  category: CATEGORIES[0],
+  price: '',
+  sort_order: '',
+};
 
 export default function AdminCondiments() {
   const [condiments, setCondiments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editor, setEditor] = useState(null);
-  const [form, setForm] = useState({ name: '', category: CATEGORIES[0], price: '', sort_order: '' });
+  const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
@@ -38,7 +44,7 @@ export default function AdminCondiments() {
   };
 
   const openNew = () => {
-    setForm({ name: '', category: CATEGORIES[0], price: '', sort_order: '' });
+    setForm(EMPTY);
     setError('');
     setEditor({ id: null });
   };
@@ -78,7 +84,7 @@ export default function AdminCondiments() {
       return;
     }
     setEditor(null);
-    showFeedback(editor.id ? '✓ Sabor actualizado' : '✓ Sabor creado');
+    showFeedback(editor.id ? '✓ Ingrediente actualizado' : '✓ Ingrediente creado');
     fetchData();
   };
 
@@ -95,11 +101,11 @@ export default function AdminCondiments() {
   };
 
   const remove = async (id, name) => {
-    if (!window.confirm(`¿Eliminar el sabor "${name}"?`)) return;
+    if (!window.confirm(`¿Eliminar el ingrediente "${name}"?`)) return;
     const { error } = await supabase.from('condiments').delete().eq('id', id);
     if (!error) {
       setCondiments((prev) => prev.filter((c) => c.id !== id));
-      showFeedback('✓ Sabor eliminado');
+      showFeedback('✓ Ingrediente eliminado');
     }
   };
 
@@ -119,7 +125,7 @@ export default function AdminCondiments() {
   return (
     <div>
       <div style={styles.head}>
-        <h2 style={styles.title}>Sabores</h2>
+        <h2 style={styles.title}>Ingredientes</h2>
         <button style={styles.newButton} onClick={openNew}>
           + Nuevo
         </button>
@@ -131,7 +137,7 @@ export default function AdminCondiments() {
         </p>
       )}
 
-      {condiments.length === 0 && <p style={styles.empty}>No hay sabores</p>}
+      {condiments.length === 0 && <p style={styles.empty}>No hay ingredientes</p>}
 
       {condiments.map((c) => (
         <div key={c.id} style={styles.card}>
@@ -147,7 +153,7 @@ export default function AdminCondiments() {
           <div style={styles.actions}>
             <button
               style={{ ...styles.toggleButton, ...(c.active ? styles.toggleOn : {}) }}
-              aria-label={c.active ? 'Desactivar sabor' : 'Activar sabor'}
+              aria-label={c.active ? 'Desactivar ingrediente' : 'Activar ingrediente'}
               onClick={() => toggleActive(c)}
             >
               {c.active ? 'ON' : 'OFF'}
@@ -180,7 +186,7 @@ export default function AdminCondiments() {
         <div style={styles.overlay} onClick={() => !saving && setEditor(null)}>
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h3 style={styles.modalTitle}>
-              {editor.id ? 'Editar sabor' : 'Nuevo sabor'}
+              {editor.id ? 'Editar ingrediente' : 'Nuevo ingrediente'}
             </h3>
 
             <label style={styles.label}>Nombre *</label>

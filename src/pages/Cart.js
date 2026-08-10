@@ -21,7 +21,13 @@ export default function Cart() {
             <div style={styles.qtyControls}>
               <button style={styles.qtyButton} onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
               <span style={styles.qty}>{item.quantity}</span>
-              <button style={styles.qtyButton} onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+              <button
+                style={styles.qtyButton}
+                disabled={item.quantity >= Number(item.stock ?? Infinity)}
+                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              >
+                +
+              </button>
             </div>
             <span style={styles.subtotal}>Bs {(item.price * item.quantity).toFixed(2)}</span>
           </div>

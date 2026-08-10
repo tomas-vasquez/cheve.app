@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import Skeleton from '../../components/Skeleton';
+import ImageCropper from '../../components/ImageCropper';
 
 const EMPTY = {
   name: '',
@@ -10,10 +12,15 @@ const EMPTY = {
   stock: '',
   image_url: '',
   abv: '',
+  pack_of: '',
+  units_per_pack: '12',
 };
 
 export default function AdminProducts() {
+  const { branchId, user } = useAuth();
+  const canManage = user?.id === '721ecd1b-204c-48cc-83f5-aa7ad2265d2c';
   const [products, setProducts] = useState([]);
+  const [stockMap, setStockMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [editor, setEditor] = useState(null);
   const [form, setForm] = useState(EMPTY);
@@ -22,18 +29,46 @@ export default function AdminProducts() {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [pendingImage, setPendingImage] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categoryHover, setCategoryHover] = useState(null);
   const feedbackTimer = useRef(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.from('products').select('*').order('name');
-    if (data) setProducts(data);
+    const { data: pData } = await supabase.from('products').select('*').order('name');
+    if (pData) setProducts(pData);
+    if (branchId) {
+      const { data: sData } = await supabase
+        .from('branch_stock')
+        .select('product_id, stock')
+        .eq('branch_id', branchId);
+      const map = {};
+      (sData || []).forEach((r) => {
+        map[r.product_id] = r.stock;
+      });
+      setStockMap(map);
+    } else {
+      setStockMap({});
+    }
     setLoading(false);
+  }, [branchId]);
+
+  const fetchCategories = useCallback(async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('category')
+      .not('category', 'is', null);
+    if (data) {
+      setCategories([...new Set(data.map((c) => c.category).filter(Boolean))].sort());
+    }
   }, []);
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchCategories();
+  }, [fetchData, fetchCategories]);
 
   useEffect(() => () => clearTimeout(feedbackTimer.current), []);
 
@@ -56,9 +91,11 @@ export default function AdminProducts() {
       description: p.description || '',
       price: p.price ?? '',
       category: p.category || '',
-      stock: p.stock ?? '',
+      stock: stockMap[p.id] ?? '',
       image_url: p.image_url || '',
       abv: p.abv ?? '',
+      pack_of: p.pack_of || '',
+      units_per_pack: p.units_per_pack ?? '12',
     });
     setError('');
     setUploadError('');
@@ -96,27 +133,55 @@ export default function AdminProducts() {
       setError('El nombre es obligatorio.');
       return;
     }
+    if (!branchId) {
+      setError(
+        'Tu cuenta no tiene una sucursal asignada. Asígnala en la BD para gestionar stock.'
+      );
+      return;
+    }
+    const stock = form.stock === '' ? 0 : Number(form.stock);
+    const isPack = !!form.pack_of;
+    const unitsPerPack = Math.max(1, Math.floor(Number(form.units_per_pack) || 1));
     const payload = {
       name: form.name.trim(),
       description: form.description.trim() || null,
       price: Number(form.price) || 0,
       category: form.category.trim() || null,
-      stock: form.stock === '' ? 0 : Number(form.stock),
       image_url: form.image_url.trim() || null,
       abv: form.abv === '' ? null : Number(form.abv),
+      pack_of: isPack ? form.pack_of : null,
+      units_per_pack: isPack ? unitsPerPack : 1,
     };
     setSaving(true);
-    const res = editor.id
-      ? await supabase.from('products').update(payload).eq('id', editor.id)
-      : await supabase.from('products').insert(payload);
-    setSaving(false);
+    let productId = editor.id;
+    let res;
+    if (editor.id) {
+      res = await supabase.from('products').update(payload).eq('id', editor.id);
+    } else {
+      res = await supabase.from('products').insert(payload).select('id');
+      if (!res.error && res.data?.[0]) productId = res.data[0].id;
+    }
     if (res.error) {
+      setSaving(false);
       setError(res.error.message);
       return;
     }
+    if (productId && !isPack) {
+      const stockRes = await supabase.from('branch_stock').upsert(
+        { branch_id: branchId, product_id: productId, stock },
+        { onConflict: 'branch_id,product_id' }
+      );
+      if (stockRes.error) {
+        setSaving(false);
+        setError(stockRes.error.message);
+        return;
+      }
+    }
+    setSaving(false);
     setEditor(null);
     showFeedback(editor.id ? '✓ Producto actualizado' : '✓ Producto creado');
     fetchData();
+    fetchCategories();
   };
 
   const remove = async (id, name) => {
@@ -127,6 +192,9 @@ export default function AdminProducts() {
       showFeedback('✓ Producto eliminado');
     }
   };
+
+  const isPack = !!form.pack_of;
+  const baseProducts = products.filter((p) => p.id !== editor?.id && !p.pack_of);
 
   if (loading) {
     return (
@@ -145,10 +213,25 @@ export default function AdminProducts() {
     <div>
       <div style={styles.head}>
         <h2 style={styles.title}>Productos</h2>
-        <button style={styles.newButton} onClick={openNew}>
-          + Nuevo
-        </button>
+        {canManage && (
+          <button style={styles.newButton} onClick={openNew}>
+            + Nuevo
+          </button>
+        )}
       </div>
+
+      {!canManage && (
+        <p style={styles.warning}>
+          Solo el encargado puede agregar o editar productos.
+        </p>
+      )}
+
+      {!branchId && (
+        <p style={styles.warning}>
+          Tu cuenta no tiene una sucursal asignada. Pídele al encargado de la BD que
+          asigne tu sucursal para poder gestionar stock.
+        </p>
+      )}
 
       {feedback && (
         <p style={styles.feedback} role="status" aria-live="polite">
@@ -158,7 +241,9 @@ export default function AdminProducts() {
 
       {products.length === 0 && <p style={styles.empty}>No hay productos</p>}
 
-      {products.map((p) => (
+      {(() => {
+        const nameById = Object.fromEntries(products.map((p) => [p.id, p.name]));
+        return products.map((p) => (
         <div key={p.id} style={styles.card}>
           {p.image_url ? (
             <img src={p.image_url} alt={p.name} style={styles.productThumb} />
@@ -169,35 +254,49 @@ export default function AdminProducts() {
             <span style={styles.name}>{p.name}</span>
             <span style={styles.details}>
               {p.category || 'Sin categoría'} · Bs {Number(p.price).toFixed(2)}
-              {p.stock !== null && p.stock !== undefined && (
-                <> · Stock: {p.stock}</>
+              {p.pack_of && (
+                <span style={{ color: '#c9a227' }}>
+                  {' '}
+                  · Pack de {nameById[p.pack_of] || '?'} × {p.units_per_pack}
+                </span>
+              )}
+              {!p.pack_of && (
+                <span style={{ color: (stockMap[p.id] ?? 0) <= 0 ? '#ff6b6b' : '#7ee787' }}>
+                  {' '}
+                  · Stock: {stockMap[p.id] ?? 0}
+                </span>
               )}
             </span>
           </div>
           <div style={styles.actions}>
-            <button
-              style={styles.editButton}
-              aria-label={`Editar ${p.name}`}
-              onClick={() => openEdit(p)}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-              </svg>
-            </button>
-            <button
-              style={styles.deleteButton}
-              aria-label={`Eliminar ${p.name}`}
-              onClick={() => remove(p.id, p.name)}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              </svg>
-            </button>
+            {canManage && (
+              <>
+                <button
+                  style={styles.editButton}
+                  aria-label={`Editar ${p.name}`}
+                  onClick={() => openEdit(p)}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                  </svg>
+                </button>
+                <button
+                  style={styles.deleteButton}
+                  aria-label={`Eliminar ${p.name}`}
+                  onClick={() => remove(p.id, p.name)}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
-      ))}
+        ));
+      })()}
 
       {editor && (
         <div style={styles.overlay} onClick={() => !saving && setEditor(null)}>
@@ -234,22 +333,92 @@ export default function AdminProducts() {
             />
 
             <label style={styles.label}>Categoría</label>
-            <input
-              type="text"
-              placeholder="Ej: Cervezas"
-              value={form.category}
-              onChange={(e) => setField('category', e.target.value)}
-              style={styles.input}
-            />
+            <div style={styles.categoryWrap}>
+              <input
+                type="text"
+                placeholder="Ej: Cervezas"
+                value={form.category}
+                onChange={(e) => setField('category', e.target.value)}
+                onFocus={() => setCategoryOpen(true)}
+                onBlur={() => setTimeout(() => setCategoryOpen(false), 120)}
+                style={styles.input}
+              />
+              {categoryOpen && (
+                <div style={styles.categoryList}>
+                  {categories
+                    .filter((c) =>
+                      c.toLowerCase().includes(form.category.trim().toLowerCase())
+                    )
+                    .map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setField('category', c);
+                          setCategoryOpen(false);
+                        }}
+                        onMouseEnter={() => setCategoryHover(c)}
+                        onMouseLeave={() => setCategoryHover(null)}
+                        style={{
+                          ...styles.categoryItem,
+                          ...(categoryHover === c ? styles.categoryItemActive : {}),
+                        }}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  {categories.filter((c) =>
+                    c.toLowerCase().includes(form.category.trim().toLowerCase())
+                  ).length === 0 && (
+                    <span style={styles.categoryEmpty}>Sin coincidencias</span>
+                  )}
+                </div>
+              )}
+            </div>
 
-            <label style={styles.label}>Stock</label>
-            <input
-              type="number"
-              min="0"
-              value={form.stock}
-              onChange={(e) => setField('stock', e.target.value)}
+            <label style={styles.label}>Es pack de (producto unidad)</label>
+            <select
+              value={form.pack_of}
+              onChange={(e) => setField('pack_of', e.target.value)}
               style={styles.input}
-            />
+            >
+              <option value="">— Ninguno (producto normal) —</option>
+              {baseProducts.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {isPack && (
+              <>
+                <label style={styles.label}>Unidades por pack</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.units_per_pack}
+                  onChange={(e) => setField('units_per_pack', e.target.value)}
+                  style={styles.input}
+                />
+                <p style={styles.packHint}>
+                  El stock de este pack se gestiona desde la pestaña Stock (en packs);
+                  se guarda como unidades del producto base.
+                </p>
+              </>
+            )}
+
+            {!isPack && (
+              <>
+                <label style={styles.label}>Stock en tu sucursal</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.stock}
+                  onChange={(e) => setField('stock', e.target.value)}
+                  style={styles.input}
+                />
+              </>
+            )}
 
             <label style={styles.label}>Imagen</label>
             <div style={styles.uploadRow}>
@@ -272,8 +441,17 @@ export default function AdminProducts() {
                   style={{ display: 'none' }}
                   disabled={uploading}
                   onChange={(e) => {
-                    uploadImage(e.target.files[0]);
+                    const file = e.target.files[0];
                     e.target.value = '';
+                    if (!file) return;
+                    setUploadError('');
+                    if (!file.type.startsWith('image/')) {
+                      setUploadError('Selecciona un archivo de imagen.');
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = () => setPendingImage(reader.result);
+                    reader.readAsDataURL(file);
                   }}
                 />
               </label>
@@ -330,6 +508,17 @@ export default function AdminProducts() {
           </div>
         </div>
       )}
+
+      {pendingImage && (
+        <ImageCropper
+          imageSrc={pendingImage}
+          onCancel={() => setPendingImage(null)}
+          onComplete={async (file) => {
+            setPendingImage(null);
+            await uploadImage(file);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -353,6 +542,15 @@ const styles = {
     fontSize: 14,
   },
   feedback: { fontSize: 13, color: '#7ee787', margin: '0 0 12px' },
+  warning: {
+    fontSize: 13,
+    color: '#ffb86b',
+    background: 'rgba(255,184,107,0.1)',
+    border: '1px solid rgba(255,184,107,0.35)',
+    borderRadius: 10,
+    padding: '10px 14px',
+    margin: '0 0 12px',
+  },
   empty: { fontSize: 13, color: '#8a8a8a', textAlign: 'center', marginTop: 40 },
   card: {
     display: 'flex',
@@ -491,6 +689,42 @@ const styles = {
     outline: 'none',
     boxSizing: 'border-box',
   },
+  categoryWrap: { position: 'relative' },
+  categoryList: {
+    position: 'absolute',
+    top: 'calc(100% - 12px)',
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    maxHeight: 190,
+    overflowY: 'auto',
+    background: 'rgba(24,24,26,0.98)',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: 10,
+    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+  },
+  categoryItem: {
+    display: 'block',
+    width: '100%',
+    textAlign: 'left',
+    padding: '10px 14px',
+    background: 'transparent',
+    border: 'none',
+    color: '#fff',
+    fontSize: 14,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
+  categoryItemActive: {
+    background: 'rgba(201,162,39,0.15)',
+    color: '#c9a227',
+  },
+  categoryEmpty: {
+    display: 'block',
+    padding: '12px 14px',
+    fontSize: 13,
+    color: '#8a8a8a',
+  },
   previewBox: {
     display: 'flex',
     alignItems: 'center',
@@ -511,6 +745,15 @@ const styles = {
   },
   previewNote: { fontSize: 12, color: '#8a8a8a' },
   error: { fontSize: 13, color: '#ff6b6b', margin: '0 0 12px' },
+  packHint: {
+    fontSize: 12,
+    color: '#ffb86b',
+    background: 'rgba(255,184,107,0.1)',
+    border: '1px solid rgba(255,184,107,0.35)',
+    borderRadius: 8,
+    padding: '8px 12px',
+    margin: '-8px 0 16px',
+  },
   actionsRow: { display: 'flex', gap: 10, marginTop: 6 },
   cancelButton: {
     background: 'rgba(255,255,255,0.08)',

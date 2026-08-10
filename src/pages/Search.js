@@ -1,23 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useBranch } from '../context/BranchContext';
 import ProductCard from '../components/ProductCard';
+import ProductDetail from './ProductDetail';
 
 export default function Search() {
   const navigate = useNavigate();
+  const { branchId } = useBranch();
   const [query, setQuery] = useState('');
   const [products, setProducts] = useState([]);
+  const [detailProduct, setDetailProduct] = useState(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const { data, error } = await supabase.from('products').select('*').order('name');
-      if (!error && data) setProducts(data);
+      if (!branchId) {
+        setProducts([]);
+        return;
+      }
+      const { data, error } = await supabase
+        .from('branch_products')
+        .select('*')
+        .eq('branch_id', branchId)
+        .order('name');
+      if (!error && data) setProducts(data.map((r) => ({ ...r, id: r.product_id })));
     };
     fetchProducts();
     const t = setTimeout(() => inputRef.current?.focus(), 80);
     return () => clearTimeout(t);
-  }, []);
+  }, [branchId]);
 
   const q = query.trim().toLowerCase();
   const results = products.filter((p) =>
@@ -45,14 +57,22 @@ export default function Search() {
 
       {results.length === 0 ? (
         <p style={styles.empty}>
-          {q ? `Sin resultados para "${query}"` : 'Escribe para buscar productos'}
+          {!branchId
+            ? 'Elige una sucursal para ver el catálogo'
+            : q
+              ? `Sin resultados para "${query}"`
+              : 'Escribe para buscar productos'}
         </p>
       ) : (
         <div className="products-grid" style={styles.grid}>
           {results.map((item) => (
-            <ProductCard key={item.id} item={item} />
+            <ProductCard key={item.id} item={item} onOpenDetail={setDetailProduct} />
           ))}
         </div>
+      )}
+
+      {detailProduct && (
+        <ProductDetail product={detailProduct} onClose={() => setDetailProduct(null)} />
       )}
     </div>
   );
@@ -99,6 +119,7 @@ const styles = {
   grid: {
     flex: 1,
     overflowY: 'auto',
+    alignContent: 'start',
   },
   empty: { textAlign: 'center', marginTop: 60, color: '#999' },
 };

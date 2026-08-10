@@ -1,36 +1,62 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useBranch } from '../context/BranchContext';
 import HomeSkeleton from '../components/HomeSkeleton';
 import BannerCarousel from '../components/BannerCarousel';
 import ProductCard from '../components/ProductCard';
+import ProductDetail from './ProductDetail';
+import AddToCartSheet from '../components/AddToCartSheet';
 
 const PAGE_SIZE = 6;
 
-export default function Home() {
+export default function Home({ headerHidden = false }) {
+  const { branchId } = useBranch();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState(['Todas']);
   const [loading, setLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [category, setCategory] = useState('Todas');
+  const [chipsTop, setChipsTop] = useState(0);
+  const [detailProduct, setDetailProduct] = useState(null);
+  const [quickAdd, setQuickAdd] = useState(null);
+  const firstRun = useRef(true);
+  const barRef = useRef(null);
 
-  const fetchPage = useCallback(async (cat, start) => {
-    let query = supabase
-      .from('products')
-      .select('*')
-      .order('name')
-      .range(start, start + PAGE_SIZE - 1);
-    if (cat !== 'Todas') query = query.eq('category', cat);
-    const { data } = await query;
-    return data || [];
+  useEffect(() => {
+    const measure = () => {
+      const h = document.querySelector('header')?.getBoundingClientRect().height;
+      if (h) setChipsTop(h);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, []);
 
-  const MIN_LOADING_MS = 500;
+  const fetchPage = useCallback(
+    async (cat, start) => {
+      if (!branchId) return [];
+      let query = supabase
+        .from('branch_products')
+        .select('*')
+        .eq('branch_id', branchId)
+        .order('name')
+        .range(start, start + PAGE_SIZE - 1);
+      if (cat !== 'Todas') query = query.eq('category', cat);
+      const { data } = await query;
+      return (data || []).map((r) => ({ ...r, id: r.product_id }));
+    },
+    [branchId]
+  );
 
-  const loadInitial = useCallback(
-    async (cat) => {
-      setLoading(true);
+  const MIN_LOADING_MS = 250;
+
+  const loadPage = useCallback(
+    async (cat, mode) => {
       setHasMore(true);
+      if (mode === 'initial') setLoading(true);
+      else setProductsLoading(true);
       const started = Date.now();
       const data = await fetchPage(cat, 0);
       const elapsed = Date.now() - started;
@@ -39,36 +65,59 @@ export default function Home() {
       }
       setProducts(data);
       setHasMore(data.length === PAGE_SIZE);
-      setLoading(false);
+      if (mode === 'initial') setLoading(false);
+      else setProductsLoading(false);
     },
     [fetchPage]
   );
 
+  const ensureCatsAtTop = () => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const headerEl = document.querySelector('header');
+    const target = Math.max(0, headerEl?.getBoundingClientRect().bottom || 0);
+    const rect = bar.getBoundingClientRect();
+    if (rect.top > target + 2) {
+      window.scrollTo({ top: window.scrollY + (rect.top - target), behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      loadPage(category, 'initial');
+    } else {
+      loadPage(category, 'switch');
+      ensureCatsAtTop();
+    }
+  }, [category, loadPage]);
+
   const loadMore = useCallback(async () => {
-    if (loading || loadingMore || !hasMore) return;
+    if (loading || productsLoading || loadingMore || !hasMore) return;
     setLoadingMore(true);
     const data = await fetchPage(category, products.length);
     setProducts((prev) => [...prev, ...data]);
     setHasMore(data.length === PAGE_SIZE);
     setLoadingMore(false);
-  }, [category, products.length, loading, loadingMore, hasMore, fetchPage]);
-
-  useEffect(() => {
-    loadInitial(category);
-  }, [category, loadInitial]);
+  }, [category, products.length, loading, productsLoading, loadingMore, hasMore, fetchPage]);
 
   useEffect(() => {
     const fetchCategories = async () => {
+      if (!branchId) {
+        setCategories(['Todas']);
+        return;
+      }
       const { data } = await supabase
-        .from('products')
+        .from('branch_products')
         .select('category')
+        .eq('branch_id', branchId)
         .not('category', 'is', null);
       if (data) {
         setCategories(['Todas', ...new Set(data.map((c) => c.category))]);
       }
     };
     fetchCategories();
-  }, []);
+  }, [branchId]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -93,8 +142,7 @@ export default function Home() {
         <BannerCarousel />
       </div>
 
-      <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>Categorías</h2>
+      <div ref={barRef} style={{ ...styles.stickyCats, top: headerHidden ? 0 : chipsTop }}>
         <div style={styles.chips} className="chips-scroll">
           {categories.map((c) => {
             const active = category === c;
@@ -115,19 +163,42 @@ export default function Home() {
         </div>
       </div>
 
-      {products.length === 0 ? (
-        <p style={styles.empty}>No hay productos en esta categoría</p>
-      ) : (
-        <div className="products-grid">
-          {products.map((item) => (
-            <ProductCard key={item.id} item={item} />
-          ))}
-          {loadingMore && <HomeSkeleton count={3} bare />}
-        </div>
+      <div style={styles.productsArea}>
+        {productsLoading ? (
+          <div className="products-grid">
+            <HomeSkeleton count={6} bare />
+          </div>
+        ) : products.length === 0 ? (
+          <p style={styles.empty}>
+            {branchId
+              ? 'No hay productos en esta categoría'
+              : 'Elige una sucursal para ver el catálogo'}
+          </p>
+        ) : (
+          <div className="products-grid">
+            {products.map((item) => (
+              <ProductCard
+                key={item.id}
+                item={item}
+                onOpenDetail={setDetailProduct}
+                onQuickAdd={setQuickAdd}
+              />
+            ))}
+            {loadingMore && <HomeSkeleton count={3} bare />}
+          </div>
+        )}
+
+        {!hasMore && products.length > 0 && !productsLoading && (
+          <p style={styles.end}>Has visto todos los productos</p>
+        )}
+      </div>
+
+      {detailProduct && (
+        <ProductDetail product={detailProduct} onClose={() => setDetailProduct(null)} />
       )}
 
-      {!hasMore && products.length > 0 && (
-        <p style={styles.end}>Has visto todos los productos</p>
+      {quickAdd && (
+        <AddToCartSheet product={quickAdd} onClose={() => setQuickAdd(null)} />
       )}
     </div>
   );
@@ -143,14 +214,18 @@ const styles = {
     maxWidth: 600,
     margin: '0 auto',
   },
-  section: {
+  stickyCats: {
+    position: 'sticky',
+    zIndex: 5,
+    background: 'rgba(0,0,0,0.6)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    padding: '14px 0 12px',
     marginTop: 20,
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#c9a227',
-    margin: '0 0 10px',
+  productsArea: {
+    marginTop: 20,
   },
   chips: {
     display: 'flex',

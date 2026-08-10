@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { useBranch } from '../context/BranchContext';
 
 const DEFAULT_POS = [-17.7833, -63.1821];
 
@@ -40,6 +41,7 @@ function Recenter({ pos, shouldFly }) {
 export default function MapPicker() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { branches, nearestBranch, reload } = useBranch();
   const [pos, setPos] = useState(DEFAULT_POS);
   const [flyToPos, setFlyToPos] = useState(true);
   const [reference, setReference] = useState('');
@@ -127,14 +129,17 @@ export default function MapPicker() {
   const save = async () => {
     setSaving(true);
     setFeedback('');
+    const nearest = nearestBranch(branches, pos[0], pos[1]);
+    const payload = {
+      user_id: user.id,
+      lat: pos[0],
+      lng: pos[1],
+      reference: reference.trim(),
+      updated_at: new Date().toISOString(),
+    };
+    if (nearest) payload.branch_id = nearest.id;
     const { error } = await supabase.from('profiles').upsert(
-      {
-        user_id: user.id,
-        lat: pos[0],
-        lng: pos[1],
-        reference: reference.trim(),
-        updated_at: new Date().toISOString(),
-      },
+      payload,
       { onConflict: 'user_id' }
     );
     setSaving(false);
@@ -144,6 +149,7 @@ export default function MapPicker() {
         `No se pudo guardar: ${error.message}. Verifica que la tabla profiles exista en Supabase.`
       );
     } else {
+      await reload();
       navigate(-1);
     }
   };

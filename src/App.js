@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-ro
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { BranchProvider } from './context/BranchContext';
 import AgeGate, { isAgeVerified } from './components/AgeGate';
 import NavBar from './components/NavBar';
 import Splash from './components/Splash';
@@ -13,18 +14,19 @@ import Profile from './pages/Profile';
 import Bolo from './pages/Bolo';
 import MapPicker from './pages/MapPicker';
 import Search from './pages/Search';
+import ProductDetail from './pages/ProductDetail';
 import OrdersPage from './pages/OrdersPage';
 import EditProfile from './pages/EditProfile';
 import AdminApp from './pages/admin/AdminApp';
 import DeliveryApp from './pages/delivery/DeliveryApp';
 import './App.css';
 
-const HIDE_CHROME = ['/map', '/buscar', '/pedidos', '/perfil'];
+const HIDE_CHROME = ['/map', '/buscar', '/pedidos', '/perfil', '/producto'];
 
 const isAdminMode = process.env.REACT_APP_ADMIN === 'true';
 const isDeliveryMode = process.env.REACT_APP_DELIVERY === 'true';
 
-function Header() {
+function Header({ hidden }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   return (
@@ -35,6 +37,8 @@ function Header() {
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid rgba(255,255,255,0.08)',
+      transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
+      transition: 'transform 0.25s ease',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5 }}>
@@ -73,6 +77,7 @@ function Header() {
 function AppContent() {
   const [ageVerified, setAgeVerified] = useState(isAgeVerified());
   const [splashReady, setSplashReady] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
   const location = useLocation();
   const { user, loading } = useAuth();
 
@@ -84,6 +89,17 @@ function AppContent() {
     } else {
       document.title = 'Cheve.app';
     }
+  }, []);
+
+  React.useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setHeaderHidden(y > lastY && y > 80);
+      lastY = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   React.useEffect(() => {
@@ -136,15 +152,16 @@ function AppContent() {
 
   return (
     <>
-      {location.pathname === '/' && <Header />}
+      {location.pathname === '/' && <Header hidden={headerHidden} />}
       <main style={{ paddingBottom: hideChrome ? 0 : 126 }}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home headerHidden={headerHidden} />} />
           <Route path="/bolo" element={<Bolo />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<MapPicker />} />
           <Route path="/buscar" element={<Search />} />
+          <Route path="/producto" element={<ProductDetail />} />
           <Route path="/pedidos" element={<OrdersPage />} />
           <Route path="/perfil" element={<EditProfile />} />
         </Routes>
@@ -159,9 +176,11 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <ToastProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
+          <BranchProvider>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </BranchProvider>
         </ToastProvider>
       </CartProvider>
     </AuthProvider>

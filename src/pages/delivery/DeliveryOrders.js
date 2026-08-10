@@ -28,7 +28,7 @@ const timeAgo = (value) => {
 };
 
 export default function DeliveryOrders() {
-  const { user } = useAuth();
+  const { user, branchId } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Activos');
@@ -138,6 +138,12 @@ export default function DeliveryOrders() {
         Desliza → para iniciar la entrega o marcarla como entregada · pulsa "Asignarme" para
         tomarte un pedido
       </p>
+      {!branchId && (
+        <p style={styles.noBranch}>
+          Tu cuenta no tiene una sucursal asignada. Pídele a un administrador que te
+          agregue como repartidor para recibir pedidos.
+        </p>
+      )}
       {notice && <p style={styles.notice}>{notice}</p>}
 
       <div style={styles.chips}>
@@ -402,4 +408,14 @@ const styles = {
     textDecoration: 'none',
   },
   noLocation: { fontSize: 12, color: '#8a8a8a' },
+  noBranch: {
+    fontSize: 13,
+    color: '#ffb86b',
+    background: 'rgba(255,184,107,0.1)',
+    border: '1px solid rgba(255,184,107,0.35)',
+    borderRadius: 10,
+    padding: '10px 14px',
+    margin: '0 0 12px',
+    lineHeight: 1.5,
+  },
 };
