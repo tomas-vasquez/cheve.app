@@ -9,7 +9,7 @@ export default function AdminNavbar({ tabs, active, onSelect }) {
           onClick={() => onSelect(t.id)}
           style={{
             ...styles.tab,
-            color: active === t.id ? '#c9a227' : '#8a8a8a',
+            color: active === t.id ? '#1DB954' : '#8a8a8a',
           }}
         >
           <span style={styles.iconWrap}>{t.icon}</span>

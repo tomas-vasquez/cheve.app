@@ -27,49 +27,42 @@ const isAdminMode = process.env.REACT_APP_ADMIN === 'true';
 const isDeliveryMode = process.env.REACT_APP_DELIVERY === 'true';
 
 function Header({ hidden }) {
-  const { user } = useAuth();
   const navigate = useNavigate();
   return (
     <header style={{
       position: 'sticky', top: 0, zIndex: 10,
       padding: '12px 20px',
-      background: 'rgba(0,0,0,0.6)',
+      background: 'rgba(18,18,18,0.85)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid rgba(255,255,255,0.08)',
       transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
       transition: 'transform 0.25s ease',
+      display: 'flex',
+      alignItems: 'center',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 1.5 }}>
-          <span style={{ color: '#c9a227' }}>Cheve</span>
-          <span style={{ color: '#fff' }}>.app</span>
-        </div>
-        <span style={{ fontSize: 12, color: '#cfcfcf' }}>{user?.email}</span>
-      </div>
-      <button
+      <div
         onClick={() => navigate('/buscar')}
         style={{
-          width: '100%',
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          padding: '12px 16px',
-          borderRadius: 10,
+          width: '100%',
+          padding: '10px 16px',
+          borderRadius: 500,
           border: '1px solid rgba(255,255,255,0.12)',
           background: 'rgba(255,255,255,0.06)',
-          color: '#8a8a8a',
-          fontSize: 15,
+          color: '#999',
+          fontSize: 14,
           cursor: 'pointer',
-          textAlign: 'left',
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#aaa', flexShrink: 0 }}>
           <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
+          <path d="m21 21-4.35-4.35" />
         </svg>
-        Buscar productos...
-      </button>
+        <span>Buscar productos...</span>
+      </div>
     </header>
   );
 }
@@ -120,9 +113,9 @@ function AppContent() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: '#000',
-            color: '#c9a227',
-            fontSize: 15,
+             background: '#121212',
+             color: '#1DB954',
+             fontSize: 15,
           }}
         >
           Cargando...

@@ -28,14 +28,14 @@ const styles = {
     gap: 4,
     padding: 4,
     marginBottom: 16,
-    borderRadius: 12,
+    borderRadius: 500,
     background: 'rgba(255,255,255,0.06)',
     border: '1px solid rgba(255,255,255,0.1)',
   },
   segment: {
     flex: 1,
     padding: '10px 12px',
-    borderRadius: 8,
+    borderRadius: 500,
     background: 'transparent',
     border: 'none',
     color: '#8a8a8a',
@@ -47,7 +47,7 @@ const styles = {
     transition: 'background 0.15s ease, color 0.15s ease',
   },
   segmentActive: {
-    background: '#c9a227',
+    background: '#1DB954',
     color: '#000000',
   },
 };

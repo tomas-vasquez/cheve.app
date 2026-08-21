@@ -45,7 +45,7 @@ export default function DeliveryApp() {
       <header style={styles.header}>
         <div>
           <div style={styles.brand}>
-            <span style={{ color: '#c9a227' }}>Cheve</span>
+            <span style={{ color: '#1DB954' }}>Cheve</span>
             <span style={{ color: '#fff' }}>.app</span>
             <span style={styles.badge}>Reparto</span>
           </div>
@@ -89,16 +89,16 @@ const styles = {
   loginButton: {
     marginTop: 16,
     padding: '12px 20px',
-    borderRadius: 10,
-    background: 'rgba(201,162,39,0.15)',
-    border: '1px solid rgba(201,162,39,0.5)',
-    color: '#c9a227',
+    borderRadius: 500,
+    background: 'rgba(29, 185, 84,0.15)',
+    border: '1px solid rgba(29, 185, 84,0.5)',
+    color: '#1DB954',
     fontSize: 14,
     fontWeight: 700,
     cursor: 'pointer',
     fontFamily: 'inherit',
   },
-  gold: { color: '#c9a227', fontSize: 15 },
+  gold: { color: '#1DB954', fontSize: 15 },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -126,13 +126,13 @@ const styles = {
     color: '#7ee787',
   },
   email: { fontSize: 12, color: '#8a8a8a', marginTop: 2 },
-  branch: { color: '#c9a227', fontWeight: 700 },
+  branch: { color: '#1DB954', fontWeight: 700 },
   logout: {
     background: 'rgba(255,255,255,0.08)',
     border: '1px solid rgba(255,255,255,0.15)',
     color: '#cfcfcf',
     padding: '9px 14px',
-    borderRadius: 8,
+    borderRadius: 500,
     cursor: 'pointer',
     fontSize: 13,
     fontWeight: 600,

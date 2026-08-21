@@ -100,7 +100,7 @@ const styles = {
     width: 36,
     height: 36,
     flexShrink: 0,
-    borderRadius: 10,
+    borderRadius: 500,
     border: '1px solid rgba(255,255,255,0.15)',
     background: 'rgba(255,255,255,0.08)',
     color: '#fff',
@@ -109,7 +109,7 @@ const styles = {
   input: {
     flex: 1,
     padding: '12px 16px',
-    borderRadius: 10,
+    borderRadius: 500,
     border: '1px solid rgba(255,255,255,0.12)',
     background: 'rgba(255,255,255,0.06)',
     color: '#fff',

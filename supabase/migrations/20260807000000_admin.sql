@@ -21,7 +21,7 @@ create table if not exists banners (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   subtitle text not null default '',
-  background text not null default 'linear-gradient(135deg, #c9a227 0%, #7a5c10 100%)',
+  background text not null default 'linear-gradient(135deg, #1DB954 0%, #12823a 100%)',
   active boolean not null default true,
   sort_order integer not null default 0,
   created_at timestamptz not null default now()

@@ -4,15 +4,15 @@
 
 body {
   margin: 0;
-  background-color: #000;
+  background-color: #121212;
   color: #fff;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Circular Spotify Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background: rgba(201, 162, 39, 0.4);
+  background: rgba(29, 185, 84, 0.4);
 }
 
 .products-grid {

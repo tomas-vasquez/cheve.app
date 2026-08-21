@@ -62,7 +62,7 @@ export default function NavBar() {
           end={tab.to === '/'}
           style={({ isActive }) => ({
             ...styles.tab,
-            color: isActive ? '#c9a227' : '#8a8a8a',
+            color: isActive ? '#1DB954' : '#B3B3B3',
           })}
         >
           <span style={styles.iconWrap}>
@@ -82,7 +82,7 @@ const styles = {
     bottom: 0, left: 0, right: 0, zIndex: 20,
     display: 'flex', justifyContent: 'space-around', alignItems: 'center',
     padding: '8px 0 0',
-    background: 'rgba(0,0,0,0.7)',
+    background: 'rgba(18,18,18,0.9)',
     backdropFilter: 'blur(18px)',
     WebkitBackdropFilter: 'blur(18px)',
     borderTop: '1px solid rgba(255,255,255,0.08)',
@@ -96,8 +96,8 @@ const styles = {
   label: { fontWeight: 500 },
   badge: {
     position: 'absolute', top: -6, right: -10,
-    backgroundColor: '#c9a227', color: '#000',
-    borderRadius: 9, fontSize: 10, fontWeight: 700,
+    backgroundColor: '#1DB954', color: '#000',
+    borderRadius: 500, fontSize: 10, fontWeight: 700,
     padding: '1px 5px', minWidth: 18, textAlign: 'center',
   },
 };

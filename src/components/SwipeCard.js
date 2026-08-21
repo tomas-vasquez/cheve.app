@@ -87,7 +87,7 @@ const styles = {
   wrap: {
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: 14,
+    borderRadius: 500,
     marginBottom: 12,
   },
   bgRight: {
@@ -122,7 +122,7 @@ const styles = {
     position: 'relative',
     zIndex: 1,
     padding: 16,
-    borderRadius: 14,
+    borderRadius: 500,
     background: 'rgba(255,255,255,0.05)',
     backdropFilter: 'blur(16px)',
     WebkitBackdropFilter: 'blur(16px)',

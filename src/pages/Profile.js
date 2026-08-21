@@ -81,7 +81,7 @@ export default function Profile() {
       <div style={styles.menu}>
         <button style={styles.menuRow} onClick={() => navigate('/pedidos')}>
           <div style={styles.menuIcon}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1DB954" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
               <circle cx="9" cy="21" r="1" />
               <circle cx="20" cy="21" r="1" />
@@ -98,7 +98,7 @@ export default function Profile() {
 
         <button style={styles.menuRow} onClick={() => navigate('/perfil')}>
           <div style={styles.menuIcon}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1DB954" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
@@ -114,7 +114,7 @@ export default function Profile() {
 
         <button style={styles.menuRow} onClick={() => navigate('/')}>
           <div style={styles.menuIcon}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1DB954" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
               <circle cx="12" cy="10" r="3" />
             </svg>
@@ -132,7 +132,7 @@ export default function Profile() {
 
         <button style={styles.menuRow} onClick={() => navigate('/map')}>
           <div style={styles.menuIcon}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1DB954" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
               <circle cx="12" cy="10" r="3" />
             </svg>
@@ -162,15 +162,15 @@ const styles = {
     maxWidth: 480,
     margin: '0 auto',
     background:
-      'radial-gradient(circle at 20% 0%, rgba(201,162,39,0.1), transparent 45%)',
+      'radial-gradient(circle at 20% 0%, rgba(29, 185, 84,0.1), transparent 45%)',
   },
   hero: {
     textAlign: 'center',
     padding: '28px 20px 20px',
     borderRadius: 24,
     background:
-      'linear-gradient(160deg, rgba(201,162,39,0.14), rgba(255,255,255,0.04) 55%)',
-    border: '1px solid rgba(201,162,39,0.25)',
+      'linear-gradient(160deg, rgba(29, 185, 84,0.14), rgba(255,255,255,0.04) 55%)',
+    border: '1px solid rgba(29, 185, 84,0.25)',
     marginBottom: 16,
   },
   avatarWrap: {
@@ -178,8 +178,8 @@ const styles = {
     height: 88,
     borderRadius: '50%',
     padding: 4,
-    background: 'linear-gradient(135deg, #c9a227, #e6c25a)',
-    boxShadow: '0 0 30px rgba(201,162,39,0.45)',
+    background: 'linear-gradient(135deg, #1DB954, #1ed760)',
+    boxShadow: '0 0 30px rgba(29, 185, 84,0.45)',
     margin: '0 auto 14px',
     display: 'flex',
     alignItems: 'center',
@@ -196,7 +196,7 @@ const styles = {
     fontSize: 36,
     fontWeight: 800,
     background: '#000',
-    color: '#c9a227',
+    color: '#1DB954',
   },
   avatarImage: {
     width: '100%',
@@ -217,7 +217,7 @@ const styles = {
     color: '#cfcfcf',
     cursor: 'pointer',
     padding: '10px 18px',
-    borderRadius: 10,
+    borderRadius: 500,
     fontSize: 13,
     fontWeight: 600,
   },
@@ -240,7 +240,7 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.09)',
     boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
   },
-  statValue: { fontSize: 22, fontWeight: 800, color: '#c9a227' },
+  statValue: { fontSize: 22, fontWeight: 800, color: '#1DB954' },
   statLabel: { fontSize: 12, color: '#8a8a8a' },
   menu: {
     borderRadius: 20,
@@ -268,11 +268,11 @@ const styles = {
     width: 40,
     height: 40,
     flexShrink: 0,
-    borderRadius: 12,
+    borderRadius: 500,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'rgba(201,162,39,0.12)',
+    background: 'rgba(29, 185, 84,0.12)',
   },
   menuText: {
     flex: 1,

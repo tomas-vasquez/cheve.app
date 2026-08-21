@@ -1,7 +1,7 @@
 import React from 'react';
 
 const TONES = {
-  info: { border: 'rgba(201,162,39,0.65)', dot: '#c9a227' },
+  info: { border: 'rgba(29, 185, 84,0.65)', dot: '#1DB954' },
   success: { border: 'rgba(126,231,135,0.65)', dot: '#7ee787' },
   error: { border: 'rgba(255,107,107,0.65)', dot: '#ff6b6b' },
 };
@@ -64,11 +64,11 @@ const styles = {
     alignItems: 'center',
     gap: 10,
     padding: '12px 14px',
-    borderRadius: 14,
+    borderRadius: 500,
     background: 'rgba(20,20,22,0.95)',
     backdropFilter: 'blur(14px)',
     WebkitBackdropFilter: 'blur(14px)',
-    border: '1px solid rgba(201,162,39,0.65)',
+    border: '1px solid rgba(29, 185, 84,0.65)',
     boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
     color: '#fff',
     fontSize: 14,

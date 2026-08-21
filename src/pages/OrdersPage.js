@@ -45,7 +45,7 @@ const styles = {
     justifyContent: 'center',
     width: 36,
     height: 36,
-    borderRadius: 10,
+    borderRadius: 500,
     border: '1px solid rgba(255,255,255,0.15)',
     background: 'rgba(255,255,255,0.08)',
     color: '#fff',

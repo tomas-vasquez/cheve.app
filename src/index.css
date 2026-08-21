@@ -1,6 +1,70 @@
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-Book.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-BookItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-MediumItalic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Circular Spotify Text';
+  src: url('./fonts/CircularSpotifyText-BlackItalic.otf') format('opentype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Circular Spotify Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -15,8 +79,20 @@ code {
 button:focus-visible,
 input:focus-visible,
 a:focus-visible {
-  outline: 2px solid #c9a227;
+  outline: 2px solid #1DB954;
   outline-offset: 2px;
+}
+
+button {
+  border-radius: 500px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.96);
 }
 
 .tap {
@@ -47,7 +123,7 @@ a:focus-visible {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #c9a227;
+  background: #1DB954;
   animation: splash-dot 1.2s infinite ease-in-out;
 }
 
@@ -105,7 +181,7 @@ a:focus-visible {
   height: 26px;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  background: #c9a227;
+  background: #1DB954;
   border: 3px solid #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   position: relative;

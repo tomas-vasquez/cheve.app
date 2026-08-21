@@ -255,7 +255,7 @@ export default function AdminProducts() {
             <span style={styles.details}>
               {p.category || 'Sin categoría'} · Bs {Number(p.price).toFixed(2)}
               {p.pack_of && (
-                <span style={{ color: '#c9a227' }}>
+                <span style={{ color: '#1DB954' }}>
                   {' '}
                   · Pack de {nameById[p.pack_of] || '?'} × {p.units_per_pack}
                 </span>
@@ -532,11 +532,11 @@ const styles = {
   },
   title: { fontSize: 20, fontWeight: 700, margin: 0, color: '#fff' },
   newButton: {
-    background: '#c9a227',
+    background: '#1DB954',
     color: '#000',
     border: 'none',
     padding: '10px 16px',
-    borderRadius: 10,
+    borderRadius: 500,
     cursor: 'pointer',
     fontWeight: 700,
     fontSize: 14,
@@ -547,7 +547,7 @@ const styles = {
     color: '#ffb86b',
     background: 'rgba(255,184,107,0.1)',
     border: '1px solid rgba(255,184,107,0.35)',
-    borderRadius: 10,
+    borderRadius: 500,
     padding: '10px 14px',
     margin: '0 0 12px',
   },
@@ -557,7 +557,7 @@ const styles = {
     alignItems: 'center',
     gap: 12,
     padding: '12px 16px',
-    borderRadius: 12,
+    borderRadius: 500,
     background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.09)',
     marginBottom: 10,
@@ -565,7 +565,7 @@ const styles = {
   productThumb: {
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: 500,
     objectFit: 'cover',
     flexShrink: 0,
     border: '1px solid rgba(255,255,255,0.1)',
@@ -573,7 +573,7 @@ const styles = {
   productThumbPlaceholder: {
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: 500,
     background: 'rgba(255,255,255,0.06)',
     display: 'flex',
     alignItems: 'center',
@@ -604,7 +604,7 @@ const styles = {
     background: 'rgba(255,255,255,0.08)',
     color: '#cfcfcf',
     border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: 8,
+    borderRadius: 500,
     cursor: 'pointer',
   },
   deleteButton: {
@@ -617,7 +617,7 @@ const styles = {
     background: 'rgba(255,107,107,0.12)',
     color: '#ff6b6b',
     border: '1px solid rgba(255,107,107,0.4)',
-    borderRadius: 8,
+    borderRadius: 500,
     cursor: 'pointer',
   },
   overlay: {
@@ -649,7 +649,7 @@ const styles = {
     width: '100%',
     marginBottom: 16,
     padding: '12px 14px',
-    borderRadius: 10,
+    borderRadius: 500,
     border: '1px solid rgba(255,255,255,0.15)',
     background: 'rgba(255,255,255,0.06)',
     color: '#fff',
@@ -669,11 +669,11 @@ const styles = {
     justifyContent: 'center',
     gap: 8,
     padding: '12px 14px',
-    borderRadius: 10,
+    borderRadius: 500,
     cursor: 'pointer',
-    background: 'rgba(201,162,39,0.18)',
-    border: '1px solid #c9a227',
-    color: '#c9a227',
+    background: 'rgba(29, 185, 84,0.18)',
+    border: '1px solid #1DB954',
+    color: '#1DB954',
     flexShrink: 0,
   },
   uploadText: { fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' },
@@ -681,7 +681,7 @@ const styles = {
     flex: 1,
     minWidth: 0,
     padding: '12px 14px',
-    borderRadius: 10,
+    borderRadius: 500,
     border: '1px solid rgba(255,255,255,0.15)',
     background: 'rgba(255,255,255,0.06)',
     color: '#fff',
@@ -700,7 +700,7 @@ const styles = {
     overflowY: 'auto',
     background: 'rgba(24,24,26,0.98)',
     border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: 10,
+    borderRadius: 500,
     boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
   },
   categoryItem: {
@@ -716,8 +716,8 @@ const styles = {
     fontFamily: 'inherit',
   },
   categoryItemActive: {
-    background: 'rgba(201,162,39,0.15)',
-    color: '#c9a227',
+    background: 'rgba(29, 185, 84,0.15)',
+    color: '#1DB954',
   },
   categoryEmpty: {
     display: 'block',
@@ -730,7 +730,7 @@ const styles = {
     alignItems: 'center',
     gap: 12,
     padding: 10,
-    borderRadius: 10,
+    borderRadius: 500,
     background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)',
     margin: '-8px 0 16px',
@@ -738,7 +738,7 @@ const styles = {
   previewImg: {
     width: 56,
     height: 56,
-    borderRadius: 8,
+    borderRadius: 500,
     objectFit: 'cover',
     flexShrink: 0,
     background: 'rgba(255,255,255,0.05)',
@@ -750,7 +750,7 @@ const styles = {
     color: '#ffb86b',
     background: 'rgba(255,184,107,0.1)',
     border: '1px solid rgba(255,184,107,0.35)',
-    borderRadius: 8,
+    borderRadius: 500,
     padding: '8px 12px',
     margin: '-8px 0 16px',
   },
@@ -761,17 +761,17 @@ const styles = {
     color: '#fff',
     cursor: 'pointer',
     padding: 13,
-    borderRadius: 10,
+    borderRadius: 500,
     flex: 1,
     fontSize: 14,
     fontWeight: 600,
   },
   saveButton: {
-    backgroundColor: '#c9a227',
+    backgroundColor: '#1DB954',
     color: '#000',
     border: 'none',
     padding: 13,
-    borderRadius: 10,
+    borderRadius: 500,
     flex: 1,
     cursor: 'pointer',
     fontWeight: 700,

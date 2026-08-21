@@ -4,8 +4,8 @@ export default function Splash() {
   return (
     <div style={styles.container}>
       <h1 style={styles.logo}>
-        <span style={styles.logoCheve}>Cheve</span>
-        <span style={styles.logoApp}>.app</span>
+        <span style={styles.logoLa}>La </span>
+        <span style={styles.logoFratter}>Fratter</span>
       </h1>
       <div style={styles.loader} aria-label="Cargando">
         <span className="splash-dot" />
@@ -24,17 +24,17 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     background:
-      'radial-gradient(circle at 50% 40%, rgba(201,162,39,0.12), transparent 55%), #000',
+      'radial-gradient(circle at 50% 40%, rgba(29,185,84,0.15), transparent 55%), #121212',
   },
   logo: {
     fontSize: 40,
-    fontWeight: 800,
+    fontWeight: 700,
     letterSpacing: 1.5,
     margin: 0,
     textAlign: 'center',
   },
-  logoCheve: { color: '#c9a227' },
-  logoApp: { color: '#fff' },
+  logoLa: { color: '#1DB954' },
+  logoFratter: { color: '#fff' },
   loader: {
     position: 'absolute',
     bottom: 48,

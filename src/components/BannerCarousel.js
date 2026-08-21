@@ -5,7 +5,7 @@ const DEFAULT_BANNERS = [
   {
     title: 'Machucada de coca',
     subtitle: 'Crea tu propia combinación con condimentos',
-    background: 'linear-gradient(135deg, #c9a227 0%, #7a5c10 100%)',
+    background: 'linear-gradient(135deg, #1DB954 0%, #12823a 100%)',
   },
   {
     title: 'Cerveza bien fría',
@@ -26,7 +26,7 @@ export default function BannerCarousel() {
   useEffect(() => {
     supabase
       .from('banners')
-      .select('title, subtitle, background')
+      .select('title, subtitle, background, image_url, link')
       .eq('active', true)
       .order('sort_order', { ascending: true })
       .then(({ data, error }) => {
@@ -48,12 +48,31 @@ export default function BannerCarousel() {
   return (
     <div style={styles.wrap}>
       <div style={{ ...styles.track, transform: `translateX(-${index * 100}%)` }}>
-        {banners.map((banner) => (
-          <div key={banner.id ?? banner.title} style={{ ...styles.slide, background: banner.background }}>
-            <h2 style={styles.slideTitle}>{banner.title}</h2>
-            <p style={styles.slideSubtitle}>{banner.subtitle}</p>
-          </div>
-        ))}
+        {banners.map((banner) => {
+          const slideStyle = banner.image_url
+            ? {
+                ...styles.slide,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.6)), url(${banner.image_url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : {
+                ...styles.slide,
+                background: banner.background || 'linear-gradient(135deg, #1DB954 0%, #12823a 100%)',
+              };
+
+          return (
+            <div
+              key={banner.id ?? banner.title}
+              style={slideStyle}
+              onClick={() => banner.link && window.open(banner.link, '_blank')}
+              role={banner.link ? 'link' : undefined}
+            >
+              <h2 style={styles.slideTitle}>{banner.title}</h2>
+              {banner.subtitle && <p style={styles.slideSubtitle}>{banner.subtitle}</p>}
+            </div>
+          );
+        })}
       </div>
       <div style={styles.dots}>
         {banners.map((banner, i) => (

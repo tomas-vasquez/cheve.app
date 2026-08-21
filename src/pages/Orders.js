@@ -119,7 +119,7 @@ export default function Orders({ hideTitle }) {
 const styles = {
   section: { marginTop: 20, textAlign: 'left' },
   sectionTitle: {
-    fontSize: 14, fontWeight: 600, color: '#c9a227', margin: '0 0 12px',
+    fontSize: 14, fontWeight: 600, color: '#1DB954', margin: '0 0 12px',
   },
   empty: { fontSize: 13, color: '#8a8a8a', margin: '12px 0 0' },
   card: {
@@ -153,10 +153,10 @@ const styles = {
     ...(s === 'Entregado'
       ? { background: 'rgba(34,197,94,0.18)', color: '#4ade80' }
       : s === 'En camino'
-        ? { background: 'rgba(201,162,39,0.18)', color: '#c9a227' }
+        ? { background: 'rgba(29, 185, 84,0.18)', color: '#1DB954' }
         : { background: 'rgba(255,255,255,0.1)', color: '#cfcfcf' }),
   }),
-  total: { fontWeight: 700, color: '#c9a227' },
+  total: { fontWeight: 700, color: '#1DB954' },
   itemRow: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     padding: '6px 0',

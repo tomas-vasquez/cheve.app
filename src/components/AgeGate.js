@@ -43,8 +43,8 @@ const styles = {
     alignItems: 'center',
     padding: 24,
     background:
-      'radial-gradient(circle at 30% 20%, rgba(201,162,39,0.12), transparent 45%), ' +
-      'radial-gradient(circle at 75% 80%, rgba(255,255,255,0.05), transparent 50%), #000',
+      'radial-gradient(circle at 30% 20%, rgba(29,185,84,0.15), transparent 45%), ' +
+      'radial-gradient(circle at 75% 80%, rgba(255,255,255,0.03), transparent 50%), #121212',
     color: '#fff',
     textAlign: 'center',
   },
@@ -52,22 +52,22 @@ const styles = {
     width: '100%',
     maxWidth: 420,
     padding: '40px 28px',
-    borderRadius: 20,
-    background: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    background: '#181818',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid rgba(255,255,255,0.08)',
     boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
   },
   title: { fontSize: 28, marginBottom: 16, letterSpacing: 0.5 },
-  text: { fontSize: 16, color: '#cfcfcf', marginBottom: 32, maxWidth: 360, margin: '0 auto 32px', lineHeight: 1.5 },
+  text: { fontSize: 16, color: '#B3B3B3', marginBottom: 32, maxWidth: 360, margin: '0 auto 32px', lineHeight: 1.5 },
   buttonYes: {
-    backgroundColor: '#c9a227', color: '#000', border: 'none',
-    padding: '14px 24px', borderRadius: 10, marginBottom: 12,
+    backgroundColor: '#1DB954', color: '#000', border: 'none',
+    padding: '14px 24px', borderRadius: 500, marginBottom: 12,
     width: '100%', cursor: 'pointer', fontWeight: 700, fontSize: 15,
   },
   buttonNo: {
     backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.12)',
-    padding: '14px 24px', borderRadius: 10, width: '100%', cursor: 'pointer', fontSize: 15,
+    padding: '14px 24px', borderRadius: 500, width: '100%', cursor: 'pointer', fontSize: 15,
   },
 };
